@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="../css/jquery.js"></script>
+    <link href="../css/bootstrap-3.3.7-dist/css/bootstrap.css" rel="stylesheet">
+    <script src="../js/axios.min.js"></script>
+    <script src="../js/vue.js"></script>
+</head>
+<style>
+
+
+    body{
+        margin: 0px;
+        padding: 0px;
+        background-color: #4285F4;
+    }
+
+    .bg_color{
+        background-color: #4285F4;
+    }
+    .search_pos {
+        position: relative;
+        top: 65px;
+        left: 48px;
+        padding-bottom: 25px;
+        padding-top: 20px;
+    }
+
+    .show_size{
+        width: 360px;
+        height: auto;
+    }
+
+    .list_pos {
+        position: relative;
+        top: 200px;
+        left: 48px;
+        height: auto;
+    }
+
+    .input_size{
+      width: 300px;
+    }
+
+    .all_posi{
+        position: relative;
+        top: -64px;
+        left: -47px;
+        width: 10px;
+    }
+
+    .btnpos{
+        margin-top: 5px;
+        margin-left: 30%;
+    }
+
+    .form_posi{
+        position: absolute;
+        left: 50px;
+    }
+
+    .upimg_size{
+        width: 96px;
+    }
+
+    table {
+        position: absolute;
+        left: 10%;
+    }
+
+    tbody{
+        font-size: 20px;
+    }
+
+    #mlFile {
+      width: 200px
+    }
+</style>
+<body>
+
+<div class="all_posi" id="list">
+    <div class="search_pos bg_color show_size">
+        <div class="form_posi">
+            <form class="form-inline">
+                <div class="form-group">
+                    <label for="user_name">姓&nbsp&nbsp&nbsp&nbsp名：</label>
+                        <input type="text" class="form-control input_size" id="user_name" rel="inputname" placeholder="请输入姓名"><br/>
+                    <button @click="searchName" type="button" class="btn btn-primary btnpos">搜索</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="list_pos bg_color show_size">
+        <form method="POST" enctype="multipart/form-data" >
+            <table>
+                <tbody v-for="(info,index) in goodsInfo" >
+                <tr><td colspan="2"><hr></td></tr>
+                <tr><td align="right">姓名：</td><td>{{info.userName}}</td></tr>
+                <tr><td align="right">物料名：</td><td>{{info.goodsName}}</td></tr>
+                <tr><td align="right">列号： </td><td>{{info.goodsNum}}</td></tr>
+                <tr><td align="right">数量：</td><td>{{info.outCnt}}</td></tr>
+                <tr><td align="right">借出时间：</td><td>{{info.creatTime}}</td></tr>
+                <tr><td align="right">是否使用：</td><td><input type="radio" @click="getvalue(index)" value="1" name="use"/>已使用&nbsp<input type="radio" @click="getvalue(index)" value="0" name="use"/>未使用</td></tr>
+                <tr><td align="right">请上传照片：</td><td><input type="file" class="btn btn-primary upimg_size" @click="getImage(index)"  name="mlFile" /></td></tr>
+                <tr><td colspan="2" align="center">确定归还吗？<br><button type="button" :value="info.infoId" @click="updata(index)" class="btn btn-primary">确定</button></td></tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>
+</body>
+<script>
+    new Vue({
+        el: '#list',
+        data() {
+            return {
+                value:'',
+                radioIndex:'',
+                imgIndex:'',
+                imageDom:'',
+                goodsInfo: []
+            }
+        },
+        methods: {
+            searchName() {
+                let getvalue = document.getElementById("user_name").value;
+                let params = new URLSearchParams();
+                params.append('username',getvalue);
+
+                axios.get('http://localhost:8080/api/in',{
+                    params:params
+                }).then(result => {
+
+                    if (result.data.data.length === 0){
+                        alert("没有查询到结果！");
+                        return;
+                    }
+                    this.goodsInfo = result.data.data;
+                })
+            },
+            updata(index) {
+                let getId = event.target.value;
+                event.target.disabled = true;
+
+                if (this.radioIndex != index){
+                    alert("请正确操作！");
+                    return;
+                }
+
+                if (this.imgIndex != index){
+                    alert("请正确操作！");
+                    return;
+                }
+
+                try {
+                    if (this.value.length === 0 ) {
+                        throw "未选择是否使用!";
+                    }
+                } catch (e) {
+                    alert(e);
+                }
+
+                let params = new FormData();
+                params.append('infoid',getId);
+                params.append('isuse',this.value);
+                params.append('mlFile',this.imageDom.files[0]);
+
+                let config = {
+                    headers:{'Content-Type':'multipart/form-data'}
+                };
+
+                axios.post('http://localhost:8080/api/updata',params,config).then(result => {
+                    if (result.data.status === 200){
+                        alert('入库成功!');
+                        this.goodsInfo.splice(index,1);
+                    }
+                }).catch(function (error) {
+                    alert("出现异常！");
+                });
+                event.target.removeAttribute("disabled");
+            },
+            getvalue(index) {
+                this.value = event.target.value;
+                this.radioIndex = index;
+            },
+            getImage(index) {
+                this.imageDom = event.target;
+                this.imgIndex = index;
+            }
+        }
+    });
+</script>
+</html>

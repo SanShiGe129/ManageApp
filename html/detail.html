@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="../css/jquery.js"></script>
+    <link href="../css/bootstrap-3.3.7-dist/css/bootstrap.css" rel="stylesheet">
+    <script src="../js/axios.min.js"></script>
+    <script src="../js/vue.js"></script>
+    <style>
+    body{
+        margin: 0px;
+        padding: 0px;
+        background-color: #4285F4;
+    }
+
+    img {
+        width: 50px;
+        height: 60px;
+    }
+
+    img:hover{
+        transform: scale(5); /* 鼠标放到图片上的时候图片按比例放大1.5倍   */
+    }
+    </style>
+</head>
+<body>
+<div id="app">
+    <table class="table table-condensed">
+        <tbody>
+
+        <tr> <td>物料名</td> <td>{{goodsInfo.goodsName}}</td></tr>
+        <tr> <td>序列号</td> <td>{{goodsInfo.goodsNum}}</td></tr>
+        <tr> <td>借出时间</td> <td>{{goodsInfo.creatTime}}</td></tr>
+        <tr> <td>入库时间</td> <td>{{goodsInfo.updataTime}}</td></tr>
+        <tr> <td>出库时图片</td> <td><img :src="'http://localhost:8080/api/' + goodsInfo.outImg"></td></tr>
+        <tr> <td>入库时图片</td> <td><img :src="'http://localhost:8080/api/' + goodsInfo.inImg"></td></tr>
+
+        </tbody>
+    </table>
+</div>
+</body>
+<script>
+    new Vue({
+        el: '#app',
+        data() {
+            return {
+                goodsInfo: []
+            }
+        },
+        mounted() {
+            this.showdetail()
+        },
+        methods: {
+            showdetail() {
+                let params = new URLSearchParams();
+                let infoId = sessionStorage.getItem('id');
+                params.append('infoId',infoId);
+
+                axios.get('http://localhost:8080/api/showDetailInfo',{
+                    params:params
+                }).then(result => {
+                    let tempResults =  result.data.data;
+
+                    let temp = tempResults.inImg;
+
+                    if (!temp || /^\s*$/.test(temp)) {
+                        tempResults.inImg = "images/publicimg/publicimg.png";
+                    }
+
+                    temp = tempResults.outImg;
+
+                    if (!temp || /^\s*$/.test(temp)){
+                        tempResults.outImg = "images/publicimg/publicimg.png";
+                    }
+
+                    if (tempResults.updataTime == null){
+                        tempResults.updataTime = "没有记录！"
+                    }
+
+                    this.goodsInfo = tempResults;
+                })
+            },
+        }
+    })
+</script>
+</html>

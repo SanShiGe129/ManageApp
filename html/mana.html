@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="../css/jquery.js"></script>
+    <link href="../css/bootstrap-3.3.7-dist/css/bootstrap.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <script src="../js/axios.min.js"></script>
+    <script src="../js/vue.js"></script>
+    <script src="../js/ele-index.js"></script>
+    <style>
+        body{
+            margin: 0px;
+            padding: 0px;
+            background-color: #4285F4;
+        }
+
+        .all_posi{
+            margin-top: 20px;
+        }
+        .page_pos {
+            text-align: center;
+        }
+
+    </style>
+
+</head>
+<body>
+<div class="all_posi" id="app">
+    <table>
+        <tr>
+            <td align="right">管理员姓名：</td> <td>鲁森</td>
+        </tr>
+        <tr>
+            <td align="right"  valign="top">查询方式：</td> <td><input type="radio" @click="getRadioValue" value="1" name="use"/>已归还&nbsp<input type="radio" @click="getRadioValue" value="0" name="use"/>未归还&nbsp<input type="radio" @click="getRadioValue" value="3" id="all_status" name="use"/>全部状态<br>
+              <form class="form-inline">
+                  <div class="form-group">
+                      <label >姓&nbsp&nbsp&nbsp&nbsp名：</label>
+                      <input type="text" class="form-control input_size" @blur="getInputValue" placeholder="请输入姓名"><br/>
+                      <button type="button" class="btn btn-primary btnpos"  @click="search">搜索</button>&nbsp;&nbsp;&nbsp;
+                  </div><br>
+              </form>
+            </td>
+        </tr>
+    </table>
+    <div>
+        查询结果：<br>
+    </div>
+    <span><hr></span>
+    <table class="table table-condensed">
+        <thead>
+        <tr> <td>姓名</td> <td>物料名</td>  <td>是否使用</td> <td>状态</td> <td>详情</td></tr>
+        </thead>
+        <tbody v-for="(info,index) in goodsInfo">
+        <tr> <td>{{info.userName}}</td> <td>{{info.goodsName}}</td>  <td>{{info.isUse == 1?"已使用":"未使用"}}</td> <td>{{info.isIn == 1?"已入库":"未入库"}}</td> <td><button class="btn btn-default" @click="showdetail" :value = "info.infoId" role="button">查看</button></td></tr>
+        </tbody>
+        <tfoot>
+            <tr> <td colspan="5" class="page_pos">
+                <el-pagination  @current-change="getPage"
+                    background
+                    :current-page.sync="presentPage"
+                    layout="prev, pager, next"
+                    :total="total">
+                </el-pagination>
+            </td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+</body>
+<script>
+    new Vue({
+        el:'#app',
+        data(){
+            return{
+                radioValue:'',
+                userName:'',
+                pageCurrent:1,
+                total:1,
+                presentPage:1,
+                //标记方法 解决不同条件查询分页问题！
+                sign:0,
+                goodsInfo:[]
+            }
+        },
+        mounted() {
+            this.showAll();
+        },
+        methods: {
+            getRadioValue() {
+                this.sign = 1;
+
+                //初始化当前页
+                this.pageCurrent = 1;
+                //初始化分页前光标
+                this.presentPage = 1;
+
+                if (event.target.value == 3){
+                    this.radioValue = '';
+                }else {
+                    this.radioValue = event.target.value;
+                }
+                this.search();
+            },
+            getInputValue() {
+                this.sign = 2;
+                //初始化当前页
+                this.pageCurrent = 1;
+                //初始化分页前光标
+                this.presentPage = 1;
+                this.username = event.target.value;
+                this.search();
+            },
+            showAll() {
+                this.sign = 4;
+                let params = new URLSearchParams();
+                params.append('isIn',"");
+                params.append('userName',"");
+                params.append('pageNum',this.pageCurrent);
+                $("#all_status").attr("checked","checked");
+                axios.get('http://localhost:8080/api/showInfo',{
+                    params:params
+                }).then(result => {
+                    this.goodsInfo = result.data.data.infos;
+                    this.total = result.data.data.cnt;
+                });
+            },
+            search() {
+                this.sign = 5;
+                let params = new URLSearchParams();
+                params.append('isIn',this.radioValue);
+                params.append('userName',this.username);
+                params.append('pageNum',this.pageCurrent);
+                axios.get('http://localhost:8080/api/showInfo',{
+                    params:params
+                }).then(result => {
+                    this.goodsInfo = result.data.data.infos;
+                    this.total = result.data.data.cnt;
+                });
+            },
+            showdetail() {
+                sessionStorage.setItem("id",event.target.value);
+                window.location.href = "detail.html";
+            },
+            getPage(val) {
+                this.pageCurrent = val;
+                let signNum = this.sign;
+
+                if (signNum == 1){
+                    this.getRadioValue();
+                }else if (signNum == 2){
+                    this.getInputValue();
+                }else if (signNum == 3){
+                    this.searchAll();
+                }else if (signNum == 4){
+                    this.showAll();
+                }else if (signNum == 5){
+                    this.search();
+                }else {
+                    return;
+                }
+            },
+        }
+    })
+</script>
+</html>

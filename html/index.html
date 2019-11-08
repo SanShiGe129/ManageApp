@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="../css/jquery.js"></script>
+    <script src="../css/bootstrap-3.3.7-dist/js/bootstrap.js"></script>
+    <link href="../css/bootstrap-3.3.7-dist/css/bootstrap.css" rel="stylesheet">
+    <script src="../js/vue.js"></script>
+</head>
+<style>
+    body{
+        margin: 0px;
+        padding: 0px;
+        background-color: #4285F4;
+        width: 75%;
+    }
+
+    div{
+        border: 1px red solid
+    }
+
+    .pos{
+        position: relative;
+        bottom: -204px;
+    }
+    .center {
+        position: relative;
+        left: 30%;
+    }
+
+    .allsize{
+        width: auto;
+        font-size: 60px;
+    }
+
+    .outdiv {
+        position: absolute;
+        width: 150px;
+        bottom: 10px;
+    }
+    .indiv{
+        position: absolute;
+        bottom: -120px;
+    }
+    .mandiv{
+        position: absolute;
+        bottom: -240px;
+
+    }
+    .mandiv button{
+        width: 265px;
+    }
+</style>
+<body>
+<div class="row center">
+        <div class="pos">
+            <div class="outdiv"><button type="button" onclick="ingoods()" class="btn btn-primary allsize">入&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp库</button></div>
+            <div class="indiv"><button type="button" onclick="outgoods()" class="btn btn-primary allsize">出&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp库</button></div>
+            <div class="mandiv"><button type="button" id="mana" onclick="manapage()" class="btn btn-primary allsize">管&nbsp&nbsp理&nbsp&nbsp员</button></div>
+        </div>
+    </div>
+</div>
+</body>
+<script>
+     function outgoods(){
+         location.href = "out.html"
+     }
+
+     function ingoods() {
+         location.href = "in.html";
+     }
+
+     function manapage() {
+       location.href = "mana.html";
+     }
+</script>
+</html>
