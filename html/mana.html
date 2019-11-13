@@ -15,22 +15,70 @@
             padding: 0px;
             background-color: #4285F4;
         }
-
         .all_posi{
             margin-top: 20px;
         }
-        .page_pos {
-            text-align: center;
+        .input_size {
+            width: 181px;
         }
-
     </style>
-
 </head>
 <body>
 <div class="all_posi" id="app">
     <table>
         <tr>
-            <td align="right">管理员姓名：</td> <td>鲁森</td>
+            <td align="right">管理员姓名：</td> <td>鲁森&nbsp张波&nbsp
+                <span>
+        <button type="text" class="btn btn-primary" @click="dialogVisible = true">其他管理员</button>
+
+         <el-dialog
+                 title="管理员信息"
+                 :visible.sync="dialogVisible"
+                 width="40%"
+                 :before-close="handleClose">
+    <span>
+      <template>
+  <el-table
+          :data="tableData"
+          border
+          style="width: 100%">
+    <el-table-column
+            fixed
+            prop="name"
+            label="姓名"
+            width="150">
+    </el-table-column>
+    <el-table-column
+            prop="isSupper"
+            label="权限"
+            width="120">
+    </el-table-column>
+    <el-table-column
+            prop="isUse"
+            label="使用状态"
+            width="120">
+    </el-table-column>
+    <el-table-column
+            fixed="right"
+            label="操作"
+            width="100">
+      <template slot-scope="scope">
+        <el-button @click="useManage(scope.row)" type="text" size="small">使用</el-button>
+        <el-button @click="deleteManage(scope.$index,tableData)" type="text" size="small">删除</el-button>
+      </template>
+    </el-table-column>
+  </el-table>
+  <input type="text" class="form-control input_size" style="visibility: hidden" id="isPlay" @blur="getManageName" placeholder="请输入添加的姓名">
+<br/>
+</template>
+          </span>
+          <span slot="footer" class="dialog-footer">
+            <el-button @click="addManage"><sapn id="fixUpdataButt">添加</sapn></el-button>
+            <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+          </span>
+        </el-dialog>
+                </span>
+            </td>
         </tr>
         <tr>
             <td align="right"  valign="top">查询方式：</td> <td><input type="radio" @click="getRadioValue" value="1" name="use"/>已归还&nbsp<input type="radio" @click="getRadioValue" value="0" name="use"/>未归还&nbsp<input type="radio" @click="getRadioValue" value="3" id="all_status" name="use"/>全部状态<br>
@@ -38,7 +86,7 @@
                   <div class="form-group">
                       <label >姓&nbsp&nbsp&nbsp&nbsp名：</label>
                       <input type="text" class="form-control input_size" @blur="getInputValue" placeholder="请输入姓名"><br/>
-                      <button type="button" class="btn btn-primary btnpos"  @click="search">搜索</button>&nbsp;&nbsp;&nbsp;
+                      <button type="button" class="btn btn-primary btnpos"  @click="search">搜索</button>
                   </div><br>
               </form>
             </td>
@@ -48,26 +96,29 @@
         查询结果：<br>
     </div>
     <span><hr></span>
-    <table class="table table-condensed">
-        <thead>
-        <tr> <td>姓名</td> <td>物料名</td>  <td>是否使用</td> <td>状态</td> <td>详情</td></tr>
-        </thead>
-        <tbody v-for="(info,index) in goodsInfo">
-        <tr> <td>{{info.userName}}</td> <td>{{info.goodsName}}</td>  <td>{{info.isUse == 1?"已使用":"未使用"}}</td> <td>{{info.isIn == 1?"已入库":"未入库"}}</td> <td><button class="btn btn-default" @click="showdetail" :value = "info.infoId" role="button">查看</button></td></tr>
-        </tbody>
-        <tfoot>
-            <tr> <td colspan="5" class="page_pos">
-                <el-pagination  @current-change="getPage"
-                    background
-                    :current-page.sync="presentPage"
-                    layout="prev, pager, next"
-                    :total="total">
-                </el-pagination>
-            </td>
-            </tr>
-        </tfoot>
-    </table>
+
+<!--    <table class="table table-condensed">-->
+<!--        <thead>-->
+<!--        <tr> <td>姓名</td> <td>物料名</td>  <td>是否使用</td> <td>状态</td> <td>详情</td></tr>-->
+<!--        </thead>-->
+<!--        <tbody v-for="(info,index) in goodsInfo">-->
+<!--        <tr> <td>{{info.userName}}</td> <td>{{info.goodsName}}</td>  <td>{{info.isUse == 1?"已使用":"未使用"}}</td> <td>{{info.isIn == 1?"已入库":"未入库"}}</td> <td><button class="btn btn-default" @click="showdetail" :value = "info.infoId" role="button">查看</button></td></tr>-->
+<!--        </tbody>-->
+<!--        <tfoot>-->
+<!--            <tr> <td colspan="5" class="page_pos">-->
+<!--                <el-pagination  @current-change="getPage"-->
+<!--                    background-->
+<!--                    :current-page.sync="presentPage"-->
+<!--                    layout="prev, pager, next"-->
+<!--                    :total="total">-->
+<!--                </el-pagination>-->
+<!--            </td>-->
+<!--            </tr>-->
+<!--        </tfoot>-->
+<!--    </table>-->
+
 </div>
+
 </body>
 <script>
     new Vue({
@@ -81,7 +132,32 @@
                 presentPage:1,
                 //标记方法 解决不同条件查询分页问题！
                 sign:0,
-                goodsInfo:[]
+                goodsInfo:[],
+                tableData: [{
+                    id:'0',
+                    name: '张忠',
+                    isSupper: '超级管理员',
+                    isUse: '使用中',
+                },
+                {
+                    id:'1',
+                    name: '梅秋',
+                    isSupper: '管理员',
+                    isUse: '未使用',
+                },
+                {
+                    id:'2',
+                    name: '白秋葭',
+                    isSupper: '管理员',
+                    isUse: '使用中',
+                }
+                ],
+                dialogVisible: false,
+                isUse:'1',
+                ManageName:'',
+
+                //判断状态的变量
+                flag:true
             }
         },
         mounted() {
@@ -90,7 +166,6 @@
         methods: {
             getRadioValue() {
                 this.sign = 1;
-
                 //初始化当前页
                 this.pageCurrent = 1;
                 //初始化分页前光标
@@ -98,7 +173,7 @@
 
                 if (event.target.value == 3){
                     this.radioValue = '';
-                }else {
+                } else {
                     this.radioValue = event.target.value;
                 }
                 this.search();
@@ -110,6 +185,7 @@
                 //初始化分页前光标
                 this.presentPage = 1;
                 this.username = event.target.value;
+                console.log(this.username);
                 this.search();
             },
             showAll() {
@@ -125,6 +201,35 @@
                     this.goodsInfo = result.data.data.infos;
                     this.total = result.data.data.cnt;
                 });
+            },
+            //获得管理员姓名
+            getManageName() {
+                this.getManageName = event.target.value;
+            },
+            addManage() {
+                if (this.flag == false) {
+                    $("#isPlay").css("visibility","hidden");
+                    $("#fixUpdataButt").text("添加");
+                    this.flag = true;
+                }else {
+                    $("#isPlay").css("visibility","visible");
+                    $("#fixUpdataButt").text("提交");
+                    this.flag = false;
+                }
+                if ( $("#fixUpdataButt").text() == "添加" ){
+                    console.log($("#isPlay").val());
+                }
+                //初始化输入框
+                $("#isPlay").val("");
+
+            },
+            // 修改使用时的方法
+            useManage(row) {
+                console.log(row.id);
+            },
+            deleteManage(index,row) {
+                console.log(row[index].id);
+                row.splice(index,1);
             },
             search() {
                 this.sign = 5;
@@ -146,7 +251,6 @@
             getPage(val) {
                 this.pageCurrent = val;
                 let signNum = this.sign;
-
                 if (signNum == 1){
                     this.getRadioValue();
                 }else if (signNum == 2){
@@ -161,6 +265,13 @@
                     return;
                 }
             },
+            handleClose(done) {
+                this.$confirm('确认关闭？')
+                    .then(_ => {
+                        done();
+                    })
+                    .catch(_ => {});
+            }
         }
     })
 </script>
