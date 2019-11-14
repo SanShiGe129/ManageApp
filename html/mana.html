@@ -105,25 +105,25 @@
     </div>
     <span><hr></span>
 
-<!--    <table class="table table-condensed">-->
-<!--        <thead>-->
-<!--        <tr> <td>姓名</td> <td>物料名</td>  <td>是否使用</td> <td>状态</td> <td>详情</td></tr>-->
-<!--        </thead>-->
-<!--        <tbody v-for="(info,index) in goodsInfo">-->
-<!--        <tr> <td>{{info.userName}}</td> <td>{{info.goodsName}}</td>  <td>{{info.isUse == 1?"已使用":"未使用"}}</td> <td>{{info.isIn == 1?"已入库":"未入库"}}</td> <td><button class="btn btn-default" @click="showdetail" :value = "info.infoId" role="button">查看</button></td></tr>-->
-<!--        </tbody>-->
-<!--        <tfoot>-->
-<!--            <tr> <td colspan="5" class="page_pos">-->
-<!--                <el-pagination  @current-change="getPage"-->
-<!--                    background-->
-<!--                    :current-page.sync="presentPage"-->
-<!--                    layout="prev, pager, next"-->
-<!--                    :total="total">-->
-<!--                </el-pagination>-->
-<!--            </td>-->
-<!--            </tr>-->
-<!--        </tfoot>-->
-<!--    </table>-->
+    <table class="table table-condensed">
+        <thead>
+        <tr> <td>姓名</td> <td>物料名</td>  <td>是否使用</td> <td>状态</td> <td>详情</td></tr>
+        </thead>
+        <tbody v-for="(info,index) in goodsInfo">
+        <tr> <td>{{info.userName}}</td> <td>{{info.goodsName}}</td>  <td>{{info.isUse == 1?"已使用":"未使用"}}</td> <td>{{info.isIn == 1?"已入库":"未入库"}}</td> <td><button class="btn btn-default" @click="showdetail" :value = "info.infoId" role="button">查看</button></td></tr>
+        </tbody>
+        <tfoot>
+            <tr> <td colspan="5" class="page_pos">
+                <el-pagination  @current-change="getPage"
+                    background
+                    :current-page.sync="presentPage"
+                    layout="prev, pager, next"
+                    :total="total">
+                </el-pagination>
+            </td>
+            </tr>
+        </tfoot>
+    </table>
 
 </div>
 
