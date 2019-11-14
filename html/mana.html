@@ -21,6 +21,11 @@
         .input_size {
             width: 181px;
         }
+        .style-usu-btn {
+            color: #4285F4;
+            border:none;
+
+        }
     </style>
 </head>
 <body>
@@ -56,15 +61,18 @@
     <el-table-column
             prop="isUse"
             label="使用状态"
-            width="120">
-    </el-table-column>
+            width="100">
+                <template slot-scope="scope">
+                    <span>{{scope.row.isUse == true?'已使用':'未使用'}}</span>
+                </template>
+            </el-table-column>
     <el-table-column
             fixed="right"
             label="操作"
             width="100">
       <template slot-scope="scope">
-        <el-button @click="useManage(scope.row)" type="text" size="small">使用</el-button>
-        <el-button @click="deleteManage(scope.$index,tableData)" type="text" size="small">删除</el-button>
+        <input type="button" class="style-usu-btn"  @click="useManage(scope.row)" value="启用">
+        <el-button type="text" @click="deleteManage(scope.$index,tableData)" size="small">删除</el-button>
       </template>
     </el-table-column>
   </el-table>
@@ -137,27 +145,26 @@
                     id:'0',
                     name: '张忠',
                     isSupper: '超级管理员',
-                    isUse: '使用中',
+                    isUse: false,
                 },
                 {
                     id:'1',
                     name: '梅秋',
                     isSupper: '管理员',
-                    isUse: '未使用',
+                    isUse: true,
                 },
                 {
                     id:'2',
                     name: '白秋葭',
                     isSupper: '管理员',
-                    isUse: '使用中',
+                    isUse: false,
                 }
                 ],
                 dialogVisible: false,
                 isUse:'1',
                 ManageName:'',
-
                 //判断状态的变量
-                flag:true
+                flag:true,
             }
         },
         mounted() {
@@ -166,6 +173,7 @@
         methods: {
             getRadioValue() {
                 this.sign = 1;
+
                 //初始化当前页
                 this.pageCurrent = 1;
                 //初始化分页前光标
@@ -225,7 +233,17 @@
             },
             // 修改使用时的方法
             useManage(row) {
+                if (row.isUse == false){
+                    row.isUse = true;
+                    event.target.value = '禁用';
+                } else {
+                    row.isUse = false;
+                    event.target.value = '启用';
+                }
                 console.log(row.id);
+            },
+            clearbtnborder(obj) {
+                obj.style.border = 'none';
             },
             deleteManage(index,row) {
                 console.log(row[index].id);
