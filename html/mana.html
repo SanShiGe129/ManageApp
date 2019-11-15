@@ -127,6 +127,12 @@
 
 </body>
 <script>
+
+    /**
+     * 全局的url
+     * */
+    axios.defaults.baseURL = 'http://localhost:8080/api';
+
     new Vue({
         el:'#app',
         data(){
@@ -187,7 +193,7 @@
                 params.append('userName',"");
                 params.append('pageNum',this.pageCurrent);
                 $("#all_status").attr("checked","checked");
-                axios.get('http://localhost:8080/api/showInfo',{
+                axios.get('/showInfo',{
                     params:params
                 }).then(result => {
                     this.goodsInfo = result.data.data.infos;
@@ -237,7 +243,7 @@
                   alert("超级管理员不可删除");
                   return;
                 }
-                axios.post('http://localhost:8080/api/deleteManage',params).then(result => {
+                axios.post('/deleteManage',params).then(result => {
                     if (result.data.data > 0){
                         alert("删除成功!");
                     } else {
@@ -257,7 +263,7 @@
                 params.append('isIn',this.radioValue);
                 params.append('userName',this.username);
                 params.append('pageNum',this.pageCurrent);
-                axios.get('http://localhost:8080/api/showInfo',{
+                axios.get('/showInfo',{
                     params:params
                 }).then(result => {
                     this.goodsInfo = result.data.data.infos;
@@ -268,7 +274,7 @@
              * 展示管理员信息
              * */
             showManageName() {
-              axios.get('http://localhost:8080/api/showAllManage').then(result => {
+              axios.get('/showAllManage').then(result => {
                   this.tableData = result.data.data
               })
             },
@@ -279,7 +285,7 @@
                 let params = new FormData();
                 params.append("manageId",manageId);
 
-                axios.post('http://localhost:8080/api/updataNoUse',params).then(result => {
+                axios.post('/updataNoUse',params).then(result => {
                     if (result.data.data > 0){
                         alert("禁用成功!");
                     } else {
@@ -295,7 +301,7 @@
                 let params = new FormData();
                 params.append("manageId",manageId);
 
-                axios.post('http://localhost:8080/api/updataUse',params).then(result => {
+                axios.post('/updataUse',params).then(result => {
                     if (result.data.data > 0){
                         alert("启用成功!");
                     } else {
@@ -313,7 +319,7 @@
                 let params = new FormData();
                 params.append("ManageName",name);
 
-                axios.post('http://localhost:8080/api/addManage',params).then(result => {
+                axios.post('/addManage',params).then(result => {
                     if (result.data.data > 0){
                         alert("添加成功!");
                     } else {
@@ -327,7 +333,7 @@
              * 页面展示可用管理员
              * */
             canShowManageName() {
-                axios.get('http://localhost:8080/api/showManageName').then(result => {
+                axios.get('/showManageName').then(result => {
                     this.manageNameData = result.data.data;
                 })
             },

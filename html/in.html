@@ -112,6 +112,12 @@
 </div>
 </body>
 <script>
+
+    /**
+     * 全局的url
+     * */
+    axios.defaults.baseURL = 'http://localhost:8080/api';
+    
     new Vue({
         el: '#list',
         data() {
@@ -129,7 +135,7 @@
                 let params = new URLSearchParams();
                 params.append('username',getvalue);
 
-                axios.get('http://localhost:8080/api/in',{
+                axios.get('/in',{
                     params:params
                 }).then(result => {
 
@@ -171,7 +177,7 @@
                     headers:{'Content-Type':'multipart/form-data'}
                 };
 
-                axios.post('http://localhost:8080/api/updata',params,config).then(result => {
+                axios.post('/updata',params,config).then(result => {
                     if (result.data.status === 200){
                         alert('入库成功!');
                         this.goodsInfo.splice(index,1);

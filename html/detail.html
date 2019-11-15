@@ -41,6 +41,9 @@
 </div>
 </body>
 <script>
+
+    axios.defaults.baseURL = 'http://localhost:8080/api';
+
     new Vue({
         el: '#app',
         data() {
@@ -57,7 +60,7 @@
                 let infoId = sessionStorage.getItem('id');
                 params.append('infoId',infoId);
 
-                axios.get('http://localhost:8080/api/showDetailInfo',{
+                axios.get('/showDetailInfo',{
                     params:params
                 }).then(result => {
                     let tempResults =  result.data.data;
