@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="../css/jquery.js"></script>
+    <script src="../css/bootstrap-3.3.7-dist/js/bootstrap.js"></script>
+    <link href="../css/bootstrap-3.3.7-dist/css/bootstrap.css" rel="stylesheet">
+
+    <style>
+        body{
+           margin: 0px;
+           padding: 0px;
+        }
+        /*div{
+          border: 1px red solid;
+        }*/
+        .bcolor{
+            height: 100vh;
+            background-color: #4285F4;
+        }
+        .pos{
+            position: relative;
+            top: 112px;
+            left: 48px;
+        }
+
+        .div_siz{
+            width: 270px;
+        }
+        .btnpos{
+            padding-bottom: 0px;
+        }
+
+        .form-control{
+          width: 250px;
+        }
+
+        #mlFile {
+            width: 150px;
+        }
+    </style>
+</head>
+<body>
+<div class="bcolor">
+    <div class="pos div_siz">
+
+        <form class="form-inline" id="uploadForm" method="POST" enctype="multipart/form-data">
+            <div class="form-group btnpos">
+                <label for="userName">姓&nbsp&nbsp&nbsp&nbsp名：</label>
+                <input type="text" class="form-control" id="userName" placeholder="请输入姓名(请正确输入姓名)">
+            </div><br>
+            <div class="form-group btnpos">
+                <label for="goodsName">物料名：</label>
+                <input type="text" class="form-control" id="goodsName" placeholder="请输入物料名">
+            </div><br>
+            <div class="form-group btnpos">
+                <label for="goodsNum">序列号：</label>
+                <input type="text" class="form-control" id="goodsNum" placeholder="请输入序列号">
+            </div><br>
+            <div class="form-group btnpos">
+                <label for="outCnt">数&nbsp&nbsp&nbsp&nbsp量：</label>
+                <input type="text" class="form-control" id="outCnt" placeholder="请输入数量">
+            </div>
+            <div><input type="file" class="btn btn-primary" id="mlFile" name="mlFile" >上传图片</input></div><br>
+            确定提交吗？
+            <div>
+                <button type="button" id="confirm" class="btn btn-primary">确定</button>&nbsp;&nbsp;&nbsp;&nbsp;
+                <button type="reset" class="btn btn-primary">取消</button>
+            </div>
+            </form>
+    </div>
+</div>
+</body>
+<script>
+    $(function () {
+
+        $("#confirm").click(function () {
+
+            //按钮失效防止重复点击
+
+            event.target.disabled = true;
+            let manageInfo = new FormData();
+            manageInfo.append("userName",$("#userName").val() );
+            manageInfo.append("goodsName",$("#goodsName").val() );
+            manageInfo.append("goodsNum",$("#goodsNum").val() );
+            manageInfo.append("outCnt",$("#outCnt").val() );
+            manageInfo.append("mlFile",$("#mlFile").prop("files")[0]);
+
+            $.ajax({
+                url:'http://192.168.1.113:8080/api/out',
+                dataType:'json',
+                type:'POST',
+                data: manageInfo,
+                // 使数据不做处理
+                processData : false,
+
+                xhrFields: {
+                    withCredentials: false    // 前端设置是否带cookie
+                },
+                //跨域问题
+                crossDomain: true,
+                // 不要设置Content-Type请求头
+                contentType : false,
+                success: function(data) {
+                    if (data.status == 200) {
+                        alert('上传成功！');
+                        $("#goodsName").val('');
+                        $("#goodsNum").val('');
+                        $("#outCnt").val('');
+                        $("#mlFile").val("");
+                    }else {
+                        alert('上传失败！请规范填写！');
+                    }
+                },
+                error:function(response){
+                    alert("上传失败！未知错误！");
+                }
+            });
+
+            //jq移除元素
+            // $("#confirm").removeAttr("disabled");
+
+            //js移除元素
+            event.target.removeAttribute("disabled");
+
+
+        })
+    });
+</script>
+</html>
