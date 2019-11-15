@@ -21,18 +21,13 @@
         .input_size {
             width: 181px;
         }
-        .style-usu-btn {
-            color: #4285F4;
-            border:none;
-
-        }
     </style>
 </head>
 <body>
 <div class="all_posi" id="app">
     <table>
         <tr>
-            <td align="right">管理员姓名：</td> <td>鲁森&nbsp张波&nbsp
+            <td align="right">管理员姓名：</td> <td><span v-for="manageNames in manageNameData">{{manageNames.mngName + " "}}</span>
                 <span>
         <button type="text" class="btn btn-primary" @click="dialogVisible = true">其他管理员</button>
 
@@ -49,14 +44,17 @@
           style="width: 100%">
     <el-table-column
             fixed
-            prop="name"
+            prop="mngName"
             label="姓名"
             width="150">
     </el-table-column>
     <el-table-column
-            prop="isSupper"
+            prop="isSuper"
             label="权限"
             width="120">
+        <template slot-scope="scope">
+                    <span>{{scope.row.isSuper == true?'超级管理员':'管理员'}}</span>
+                </template>
     </el-table-column>
     <el-table-column
             prop="isUse"
@@ -71,8 +69,8 @@
             label="操作"
             width="100">
       <template slot-scope="scope">
-        <input type="button" class="style-usu-btn"  @click="useManage(scope.row)" value="启用">
-        <el-button type="text" @click="deleteManage(scope.$index,tableData)" size="small">删除</el-button>
+        <el-button type="text" @click="useManage(scope.row)">{{scope.row.isUse == true?'禁用':'启用'}}</el-button>
+        <el-button type="text" @click="deleteManage(scope.$index,tableData)" size="small">{{scope.row.isSuper == true?'-':'删除'}}</el-button>
       </template>
     </el-table-column>
   </el-table>
@@ -113,7 +111,7 @@
         <tr> <td>{{info.userName}}</td> <td>{{info.goodsName}}</td>  <td>{{info.isUse == 1?"已使用":"未使用"}}</td> <td>{{info.isIn == 1?"已入库":"未入库"}}</td> <td><button class="btn btn-default" @click="showdetail" :value = "info.infoId" role="button">查看</button></td></tr>
         </tbody>
         <tfoot>
-            <tr> <td colspan="5" class="page_pos">
+            <tr> <td colspan="5" class="page_pos" align="center">
                 <el-pagination  @current-change="getPage"
                     background
                     :current-page.sync="presentPage"
@@ -140,35 +138,21 @@
                 presentPage:1,
                 //标记方法 解决不同条件查询分页问题！
                 sign:0,
+                //物料信息
                 goodsInfo:[],
-                tableData: [{
-                    id:'0',
-                    name: '张忠',
-                    isSupper: '超级管理员',
-                    isUse: false,
-                },
-                {
-                    id:'1',
-                    name: '梅秋',
-                    isSupper: '管理员',
-                    isUse: true,
-                },
-                {
-                    id:'2',
-                    name: '白秋葭',
-                    isSupper: '管理员',
-                    isUse: false,
-                }
-                ],
+                //储存管理员详情信息
+                tableData: [],
                 dialogVisible: false,
-                isUse:'1',
-                ManageName:'',
                 //判断状态的变量
                 flag:true,
+                //储存管理员姓名
+                manageNameData:[],
             }
         },
         mounted() {
             this.showAll();
+            this.showManageName();
+            this.canShowManageName();
         },
         methods: {
             getRadioValue() {
@@ -225,30 +209,48 @@
                     this.flag = false;
                 }
                 if ( $("#fixUpdataButt").text() == "添加" ){
-                    console.log($("#isPlay").val());
+                    this.appendManage($("#isPlay").val());
                 }
                 //初始化输入框
                 $("#isPlay").val("");
-
             },
             // 修改使用时的方法
             useManage(row) {
                 if (row.isUse == false){
                     row.isUse = true;
                     event.target.value = '禁用';
+                    this.use(row.managenameId);
                 } else {
                     row.isUse = false;
+                    this.notUse(row.managenameId);
                     event.target.value = '启用';
                 }
-                console.log(row.id);
             },
             clearbtnborder(obj) {
                 obj.style.border = 'none';
             },
             deleteManage(index,row) {
-                console.log(row[index].id);
+                let params = new FormData();
+                params.append("manageId",row[index].managenameId);
+
+                if (row[index].mngName === '鲁森') {
+                  alert("超级管理员不可删除");
+                  return;
+                }
+                axios.post('http://localhost:8080/api/deleteManage',params).then(result => {
+                    if (result.data.data > 0){
+                        alert("删除成功!");
+                    } else {
+                        alert("删除失败!");
+                    }
+                })
+
                 row.splice(index,1);
+                this.canShowManageName();
             },
+            /**
+             * 各种查询方法
+             * */
             search() {
                 this.sign = 5;
                 let params = new URLSearchParams();
@@ -261,6 +263,73 @@
                     this.goodsInfo = result.data.data.infos;
                     this.total = result.data.data.cnt;
                 });
+            },
+            /**
+             * 展示管理员信息
+             * */
+            showManageName() {
+              axios.get('http://localhost:8080/api/showAllManage').then(result => {
+                  this.tableData = result.data.data
+              })
+            },
+            /**
+             * 禁用管理员
+             * */
+            notUse(manageId) {
+                let params = new FormData();
+                params.append("manageId",manageId);
+
+                axios.post('http://localhost:8080/api/updataNoUse',params).then(result => {
+                    if (result.data.data > 0){
+                        alert("禁用成功!");
+                    } else {
+                        alert("禁用失败!");
+                    }
+                    this.canShowManageName();
+                })
+            },
+            /**
+             * 启用管理员
+             * */
+            use(manageId) {
+                let params = new FormData();
+                params.append("manageId",manageId);
+
+                axios.post('http://localhost:8080/api/updataUse',params).then(result => {
+                    if (result.data.data > 0){
+                        alert("启用成功!");
+                    } else {
+                        alert("启用失败!");
+                    }
+                    this.canShowManageName();
+                })
+            },
+
+            /**
+             * 添加管理员
+             *
+             * */
+            appendManage(name) {
+                let params = new FormData();
+                params.append("ManageName",name);
+
+                axios.post('http://localhost:8080/api/addManage',params).then(result => {
+                    if (result.data.data > 0){
+                        alert("添加成功!");
+                    } else {
+                        alert("添加失败!");
+                    }
+                    this.showManageName();
+                    this.canShowManageName();
+                })
+            },
+            /**
+             * 页面展示可用管理员
+             * */
+            canShowManageName() {
+                axios.get('http://localhost:8080/api/showManageName').then(result => {
+                    this.manageNameData = result.data.data;
+                })
             },
             showdetail() {
                 sessionStorage.setItem("id",event.target.value);
